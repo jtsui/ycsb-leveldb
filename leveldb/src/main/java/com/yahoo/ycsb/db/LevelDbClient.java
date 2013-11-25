@@ -153,7 +153,8 @@ public class LevelDbClient extends DB {
 					jsonValues.toJSONString(), "UTF-8");
 			httpPost = new HttpPost(MessageFormat.format(
 					"{0}?key={1}&value={2}", insertUrl, key, urlStringValues));
-			System.out.println("insert request - " + httpPost.getRequestLine());
+			System.out.println("# insert request - "
+					+ httpPost.getRequestLine());
 			response = httpClient.execute(httpPost);
 			System.out.println("# insert response - "
 					+ getStringFromInputStream(response.getEntity()
@@ -192,8 +193,8 @@ public class LevelDbClient extends DB {
 					.toString(response.getEntity()));
 			System.out.println("# read response - " + jsonResponse);
 			// Use Mongo DBObject to encode back to ByteIterator
-			DBObject bson = (DBObject) JSON.parse((String) jsonResponse
-					.get("data"));
+			DBObject bson = (DBObject) JSON.parse(jsonResponse.get("data")
+					.toString());
 			if (bson != null) {
 				result.putAll(bson.toMap());
 			}
@@ -231,27 +232,18 @@ public class LevelDbClient extends DB {
 			JSONObject jsonResponse = (JSONObject) parser.parse(EntityUtils
 					.toString(response.getEntity()));
 			System.out.println("# update read response - " + jsonResponse);
-			HashMap<String, ByteIterator> existingValues = new HashMap<String, ByteIterator>();
-			if ((String) jsonResponse.get("status_txt") == "OK") {
-				// Use Mongo DBObject to encode back to ByteIterator
-				DBObject bson = (DBObject) JSON.parse((String) jsonResponse
-						.get("data"));
-				existingValues.putAll(bson.toMap());
+			JSONObject existingValues = new JSONObject();
+			// check if key exists in the db
+			if (response.getStatusLine().getStatusCode() == 200) {
+				existingValues = (JSONObject) parser.parse(jsonResponse.get(
+						"data").toString());
 			}
-			System.out.println("a" + existingValues);
-			JSONObject jsonValues = new JSONObject();
-			for (Entry<String, String> entry : StringByteIterator.getStringMap(
-					existingValues).entrySet()) {
-				jsonValues.put(entry.getKey(), entry.getValue());
-			}
-			System.out.println("b" + jsonValues);
 			for (Entry<String, String> entry : StringByteIterator.getStringMap(
 					values).entrySet()) {
-				jsonValues.put(entry.getKey(), entry.getValue());
+				existingValues.put(entry.getKey(), entry.getValue());
 			}
-			System.out.println("c" + jsonValues);
 			String urlStringValues = URLEncoder.encode(
-					jsonValues.toJSONString(), "UTF-8");
+					existingValues.toJSONString(), "UTF-8");
 			httpPost = new HttpPost(MessageFormat.format(
 					"{0}?key={1}&value={2}", insertUrl, key, urlStringValues));
 			System.out.println("# update insert request - "
@@ -297,12 +289,12 @@ public class LevelDbClient extends DB {
 			JSONObject jsonResponse = (JSONObject) parser.parse(EntityUtils
 					.toString(response.getEntity()));
 			System.out.println("# scan response - " + jsonResponse);
-			JSONArray scanEntries = (JSONArray) parser
-					.parse((String) jsonResponse.get("data"));
+			JSONArray scanEntries = (JSONArray) parser.parse(jsonResponse.get(
+					"data").toString());
 			for (Object e : scanEntries) {
 				JSONObject entry = (JSONObject) e;
-				DBObject value = (DBObject) JSON.parse((String) entry
-						.get("value"));
+				DBObject value = (DBObject) JSON.parse(entry.get("value")
+						.toString());
 				DBObject bsonResult = new BasicDBObject();
 				if (fields == null) {
 					bsonResult = value;
