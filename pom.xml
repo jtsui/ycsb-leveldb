@@ -59,6 +59,7 @@
   </properties>
 
   <modules>
+    <module>leveldb</module>
     <!--module>build-tools</module-->
     <module>cassandra</module>
     <module>core</module>

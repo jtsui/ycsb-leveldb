@@ -1,1 +1,6 @@
 /elasticsearch/target/
+*/target/*
+*.sublime-workspace
+*.sublime-project
+*.classpath
+*.project
