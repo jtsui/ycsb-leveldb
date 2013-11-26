@@ -112,12 +112,11 @@ public class LevelDbClient extends DB {
 		try {
 			httpPost = new HttpPost(MessageFormat.format("{0}?key={1}",
 					deleteUrl, key));
-			System.out.println("# delete request - "
-					+ httpPost.getRequestLine());
+			// System.out.println("# delete request - " +
+			// httpPost.getRequestLine());
 			response = httpClient.execute(httpPost);
-			System.out.println("# delete response - "
-					+ getStringFromInputStream(response.getEntity()
-							.getContent()));
+			// System.out.println("# delete response - " +
+			// getStringFromInputStream(response.getEntity().getContent()));
 			EntityUtils.consume(response.getEntity());
 			return response.getStatusLine().getStatusCode() == 200 ? 0 : 1;
 		} catch (Exception e) {
@@ -153,12 +152,11 @@ public class LevelDbClient extends DB {
 					jsonValues.toJSONString(), "UTF-8");
 			httpPost = new HttpPost(MessageFormat.format(
 					"{0}?key={1}&value={2}", insertUrl, key, urlStringValues));
-			System.out.println("# insert request - "
-					+ httpPost.getRequestLine());
+			// System.out.println("# insert request - " +
+			// httpPost.getRequestLine());
 			response = httpClient.execute(httpPost);
-			System.out.println("# insert response - "
-					+ getStringFromInputStream(response.getEntity()
-							.getContent()));
+			// System.out.println("# insert response - " +
+			// getStringFromInputStream(response.getEntity().getContent()));
 			EntityUtils.consume(response.getEntity());
 			return response.getStatusLine().getStatusCode() == 200 ? 0 : 1;
 		} catch (Exception e) {
@@ -187,11 +185,12 @@ public class LevelDbClient extends DB {
 		try {
 			httpGet = new HttpGet(MessageFormat.format("{0}?key={1}", readUrl,
 					key));
-			System.out.println("# read request - " + httpGet.getRequestLine());
+			// System.out.println("# read request - " +
+			// httpGet.getRequestLine());
 			response = httpClient.execute(httpGet);
 			JSONObject jsonResponse = (JSONObject) parser.parse(EntityUtils
 					.toString(response.getEntity()));
-			System.out.println("# read response - " + jsonResponse);
+			// System.out.println("# read response - " + jsonResponse);
 			// Use Mongo DBObject to encode back to ByteIterator
 			DBObject bson = (DBObject) JSON.parse(jsonResponse.get("data")
 					.toString());
@@ -226,12 +225,12 @@ public class LevelDbClient extends DB {
 		try {
 			httpGet = new HttpGet(MessageFormat.format("{0}?key={1}", readUrl,
 					key));
-			System.out.println("# update read request - "
-					+ httpGet.getRequestLine());
+			// System.out.println("# update read request - " +
+			// httpGet.getRequestLine());
 			response = httpClient.execute(httpGet);
 			JSONObject jsonResponse = (JSONObject) parser.parse(EntityUtils
 					.toString(response.getEntity()));
-			System.out.println("# update read response - " + jsonResponse);
+			// System.out.println("# update read response - " + jsonResponse);
 			JSONObject existingValues = new JSONObject();
 			// check if key exists in the db
 			if (response.getStatusLine().getStatusCode() == 200) {
@@ -246,12 +245,11 @@ public class LevelDbClient extends DB {
 					existingValues.toJSONString(), "UTF-8");
 			httpPost = new HttpPost(MessageFormat.format(
 					"{0}?key={1}&value={2}", insertUrl, key, urlStringValues));
-			System.out.println("# update insert request - "
-					+ httpPost.getRequestLine());
+			// System.out.println("# update insert request - " +
+			// httpPost.getRequestLine());
 			response = httpClient.execute(httpPost);
-			System.out.println("# update insert response - "
-					+ getStringFromInputStream(response.getEntity()
-							.getContent()));
+			// System.out.println("# update insert response - " +
+			// getStringFromInputStream(response.getEntity().getContent()));
 			EntityUtils.consume(response.getEntity());
 			return response.getStatusLine().getStatusCode() == 200 ? 0 : 1;
 		} catch (Exception e) {
@@ -284,11 +282,12 @@ public class LevelDbClient extends DB {
 		try {
 			httpGet = new HttpGet(MessageFormat.format("{0}?key={1}&limit={2}",
 					scanUrl, startkey, recordcount));
-			System.out.println("# scan request - " + httpGet.getRequestLine());
+			// System.out.println("# scan request - " +
+			// httpGet.getRequestLine());
 			response = httpClient.execute(httpGet);
 			JSONObject jsonResponse = (JSONObject) parser.parse(EntityUtils
 					.toString(response.getEntity()));
-			System.out.println("# scan response - " + jsonResponse);
+			// System.out.println("# scan response - " + jsonResponse);
 			JSONArray scanEntries = (JSONArray) parser.parse(jsonResponse.get(
 					"data").toString());
 			for (Object e : scanEntries) {
