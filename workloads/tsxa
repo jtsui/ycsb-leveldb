@@ -1,13 +1,13 @@
 # Yahoo! Cloud System Benchmark
 # Workload for measuring leveldb with tsx
 #
-# load 1M records
-# Then we perform 1M random updates and reads
+# load 100k records
+# Then we perform 100k random updates and reads
 # 20% of the operations are writes, and 80% are reads
 
 
-recordcount=1000000
-operationcount=1000000
+recordcount=100000
+operationcount=100000
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
