@@ -20,6 +20,8 @@
       <groupId>org.fusesource.leveldbjni</groupId>
       <artifactId>leveldbjni-all</artifactId>
       <version>1.7</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/leveldbjni-all-1.7.jar</systemPath>
     </dependency>
   </dependencies>
  

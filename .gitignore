@@ -4,3 +4,4 @@
 *.sublime-project
 *.classpath
 *.project
+leveldb_database/*
