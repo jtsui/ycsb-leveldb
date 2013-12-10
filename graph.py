@@ -30,7 +30,7 @@ def throughput(log_file):
                 title = 'Throughput for %s from %s' % (
                     workload, log_file)
             split_line = line.strip().split(' ')
-            if len(split_line) == 7 and split_line[1] == 'sec:' and split_line[3] == 'operations;':
+            if len(split_line) > 5 and split_line[1] == 'sec:' and split_line[3] == 'operations;':
                 data.append((split_line[0], split_line[4]))
             vals = [x.strip() for x in line.split(',')]
             if len(vals) == 3 and vals[0] == '[OVERALL]':
@@ -55,9 +55,9 @@ def throughput(log_file):
         row.append(text[col])
     table_vals.append(row)
     table = ax.table(cellText=table_vals,
-             rowLabels=row_labels,
-             colLabels=col_labels,
-             loc='lower right')
+                     rowLabels=row_labels,
+                     colLabels=col_labels,
+                     loc='lower right')
     table.set_fontsize(8)
     table.scale(0.85, 1.1)
     plt.show()
@@ -93,9 +93,9 @@ def latency(log_file):
     for row in row_labels:
         table_vals.append([text[row][param] for param in col_labels])
     table = ax.table(cellText=table_vals,
-             rowLabels=row_labels,
-             colLabels=col_labels,
-             loc='upper right')
+                     rowLabels=row_labels,
+                     colLabels=col_labels,
+                     loc='upper right')
     table.set_fontsize(8)
     table.scale(0.85, 1.1)
     # lines

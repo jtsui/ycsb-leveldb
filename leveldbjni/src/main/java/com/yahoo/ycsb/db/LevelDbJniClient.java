@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
@@ -30,7 +31,23 @@ import com.yahoo.ycsb.StringByteIterator;
  */
 public class LevelDbJniClient extends DB {
 
-	private static org.iq80.leveldb.DB db;
+	private static org.iq80.leveldb.DB db = null;
+
+	private static final AtomicInteger initCount = new AtomicInteger(0);
+
+	private synchronized static void getDBInstance() {
+		if (db == null) {
+			Options options = new Options();
+			// options.cacheSize(100 * 1048576); // 100MB cache
+			options.createIfMissing(true);
+			try {
+				db = factory.open(new File("leveldb_database"), options);
+			} catch (IOException e) {
+				System.out.println("Failed to open database");
+				e.printStackTrace();
+			}
+		}
+	}
 
 	private static byte[] mapToBytes(Map<String, String> map)
 			throws IOException {
@@ -55,15 +72,8 @@ public class LevelDbJniClient extends DB {
 	 */
 	@Override
 	public void init() throws DBException {
-		Options options = new Options();
-		// options.cacheSize(100 * 1048576); // 100MB cache
-		options.createIfMissing(true);
-		try {
-			db = factory.open(new File("leveldb_database"), options);
-		} catch (IOException e) {
-			System.out.println("Failed to create leveldb");
-			e.printStackTrace();
-		}
+		initCount.incrementAndGet();
+		getDBInstance();
 	}
 
 	/**
@@ -72,11 +82,13 @@ public class LevelDbJniClient extends DB {
 	 */
 	@Override
 	public void cleanup() throws DBException {
-		try {
-			db.close();
-		} catch (IOException e) {
-			System.out.println("Failed to close db");
-			e.printStackTrace();
+		if (initCount.decrementAndGet() <= 0) {
+			try {
+				db.close();
+			} catch (IOException e) {
+				System.out.println("Failed to close db");
+				e.printStackTrace();
+			}
 		}
 	}
 
