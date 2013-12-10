@@ -60,6 +60,7 @@
 
   <modules>
     <module>leveldb</module>
+    <module>leveldbjni</module>
     <!--module>build-tools</module-->
     <module>cassandra</module>
     <module>core</module>

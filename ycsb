@@ -42,6 +42,7 @@ DATABASES = {
     "redis"        : "com.yahoo.ycsb.db.RedisClient", 
     "voldemort"    : "com.yahoo.ycsb.db.VoldemortClient",
     "leveldb"      : "com.yahoo.ycsb.db.LevelDbClient",
+    "leveldbjni"   : "com.yahoo.ycsb.db.LevelDbJniClient"
 }
 
 OPTIONS = {
