@@ -16,7 +16,7 @@ def str_to_num(s):
         return False
 
 
-def throughput(log_file):
+def throughput(log_files):
     data = []
     text = {}
     with open(log_file) as f:
@@ -63,7 +63,7 @@ def throughput(log_file):
     plt.show()
 
 
-def latency(log_file):
+def latency(log_files):
     data = defaultdict(list)
     text = defaultdict(dict)
     title = ''
@@ -114,17 +114,17 @@ def latency(log_file):
 
 
 def main():
-    if len(sys.argv) == 3:
-        this_file, log_file, option = sys.argv
+    if len(sys.argv) < 3:
+        print 'Wrong number of arguments.'
+        print 'Usage: python graph.py [throughput | latency] [log files]'
+    else:
+        args = sys.argv
+        option = args[1]
+        log_files = args[2:]
         if option == 'throughput':
-            throughput(log_file)
-            return
+            throughput(log_files)
         elif option == 'latency':
-            latency(log_file)
-            return
-    print 'Wrong number of arguments.'
-    print 'Usage: python graph.py [log file] [throughput | latency]'
-    return
+            latency(log_files)
 
 
 if __name__ == '__main__':
