@@ -3,7 +3,7 @@
 #
 # load 2M records
 # Then we perform 10M random updates, inserts, and reads
-# 10% of the operations are updates, 10% inserts, and 80% are reads
+# 10% of the operations are updates, 20% inserts, and 70% are reads
 
 
 recordcount=2000000
@@ -12,10 +12,10 @@ workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
 
-readproportion=0.8
+readproportion=0.7
 updateproportion=0.1
 scanproportion=0
-insertproportion=0.1
+insertproportion=0.2
 
 requestdistribution=zipfian
 
