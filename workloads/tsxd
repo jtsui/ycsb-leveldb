@@ -2,8 +2,8 @@
 # Workload for measuring leveldb with tsx
 #
 # load 2M records
-# Then we perform 10M random updates, inserts, and reads
-# 10% of the operations are updates, 20% inserts, and 70% are reads
+# Then we perform 10M random inserts, and reads
+# 30% inserts, and 70% are reads
 
 
 recordcount=2000000
@@ -13,9 +13,9 @@ workload=com.yahoo.ycsb.workloads.CoreWorkload
 readallfields=true
 
 readproportion=0.7
-updateproportion=0.1
+updateproportion=0
 scanproportion=0
-insertproportion=0.2
+insertproportion=0.3
 
 requestdistribution=zipfian
 
