@@ -1,3 +1,4 @@
+import re
 import sys
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -18,13 +19,13 @@ def throughput(log_files, save_or_show):
         data = []
         with open(log_file) as f:
             for line in f:
-                split_line = line.strip().split(' ')
-                if len(split_line) > 5 and split_line[1] == 'sec:' and split_line[3] == 'operations;':
-                    data.append((split_line[0], split_line[4]))
-        x = [time for time, tp in data]
-        y = [tp for time, tp in data]
+                match = re.findall(
+                    r'(\d*) sec: \d* operations; (\d*.?\d*) current ops/sec', line)
+                if match:
+                    data.append(match[0])
+        x = [int(time) for time, tp in data]
+        y = [float(tp) for time, tp in data]
         plt.plot(x, y, label=log_file.replace('.log', ''))
-        # plt.plot(x, y, label='TSX Accelerated' if 'new' in log_file else 'Stock LevelDB')
     plt.title('Throughput')
     plt.xlabel('time (s)')
     plt.ylabel('ops/sec')
@@ -69,6 +70,31 @@ def latency(log_files, save_or_show):
         print 'Latency graph saved to latency.pdf'
 
 
+def ops(log_files, save_or_show):
+    for log_file in log_files:
+        data = []
+        with open(log_file) as f:
+            for line in f:
+                match = re.findall(
+                    r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
+                if match:
+                    data.append(match[0])
+        x = [float(time) for time, ops in data]
+        y = [float(ops) for time, ops in data]
+        plt.plot(x, y, label=log_file.replace('.log', ''))
+    plt.title('Cumulative Operations')
+    plt.xlabel('time (ms)')
+    plt.ylabel('ops')
+    legend = plt.legend()
+    for label in legend.get_texts():
+        label.set_fontsize('small')
+    if save_or_show == 'show':
+        plt.show()
+    else:
+        plt.savefig('cumulative_ops.pdf', bbox_inches=0)
+        print 'Cumulative operations graph saved to cumulative_ops.pdf'
+
+
 def main():
     if len(sys.argv) < 3:
         print 'Wrong number of arguments.'
@@ -86,6 +112,8 @@ def main():
             throughput(log_files, save_or_show)
         elif option == 'latency':
             latency(log_files, save_or_show)
+        elif option == 'ops':
+            ops(log_files, save_or_show)
 
 
 if __name__ == '__main__':
