@@ -24,6 +24,7 @@ def throughput(log_files, save_or_show):
         x = [time for time, tp in data]
         y = [tp for time, tp in data]
         plt.plot(x, y, label=log_file.replace('.log', ''))
+        # plt.plot(x, y, label='TSX Accelerated' if 'new' in log_file else 'Stock LevelDB')
     plt.title('Throughput')
     plt.xlabel('time (s)')
     plt.ylabel('ops/sec')
@@ -53,6 +54,8 @@ def latency(log_files, save_or_show):
             y = [point[1] for point in points]
             plt.plot(x, y, label='%s %s' %
                      (log_file.replace('.log', ''), field.strip('[]').lower()))
+            # plt.plot(x, y, label='%s' %
+            #          ('TSX Accelerated' if 'new' in log_file else 'Stock LevelDB'))
     plt.title('Latency')
     plt.xlabel('time (ms)')
     plt.ylabel('latency (us)')
