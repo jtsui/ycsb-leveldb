@@ -2,7 +2,8 @@
 # Workload for measuring leveldb with tsx
 #
 # load 1M records
-# Then we perform 10M random reads
+# Then we perform 10M operations
+# 100% reads
 
 
 recordcount=1000000

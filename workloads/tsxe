@@ -3,7 +3,7 @@
 #
 # load 1M records
 # Then we perform 1M operations
-# 30% inserts, 70% reads
+# 20% reads, 80% inserts
 
 
 recordcount=1000000
@@ -12,11 +12,11 @@ workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
 
-readproportion=0.7
+readproportion=0.2
 updateproportion=0
 scanproportion=0
-insertproportion=0.3
+insertproportion=0.8
 
 requestdistribution=zipfian
 
-threadcount=10
+threadcount=3
