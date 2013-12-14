@@ -25,7 +25,8 @@ def throughput(log_files, save_or_show):
                     data.append(match[0])
         x = [int(time) for time, tp in data]
         y = [float(tp) for time, tp in data]
-        plt.plot(x, y, label=log_file.replace('.log', ''))
+        plt.plot(x, y, label=log_file.replace('.log', ''), marker='o', ls='', ms=5, mec='white')
+        # plt.plot(x, y, label=log_file.replace('.log', ''))
     plt.title('Throughput')
     plt.xlabel('time (s)')
     plt.ylabel('ops/sec')
