@@ -1,5 +1,6 @@
 import re
 import sys
+import pylab as P
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
@@ -14,7 +15,7 @@ def str_to_num(s):
         return False
 
 
-def throughput(log_files, save_or_show):
+def throughput(log_files, save_or_show='show', hist=False):
     for log_file in log_files:
         data = []
         with open(log_file) as f:
@@ -25,7 +26,8 @@ def throughput(log_files, save_or_show):
                     data.append(match[0])
         x = [int(time) for time, tp in data]
         y = [float(tp) for time, tp in data]
-        plt.plot(x, y, label=log_file.replace('.log', ''), marker='o', ls='', ms=5, mec='white')
+        plt.plot(x, y, label=log_file.replace('.log', ''),
+                 marker='o', ls='', ms=5, mec='white')
         # plt.plot(x, y, label=log_file.replace('.log', ''))
     plt.title('Throughput')
     plt.xlabel('time (s)')
@@ -40,7 +42,9 @@ def throughput(log_files, save_or_show):
         print 'Throughput graph saved to throughput.pdf'
 
 
-def latency(log_files, save_or_show):
+def latency(log_files, save_or_show='show', hist=False):
+    hist_data = []
+    labels = []
     for log_file in log_files:
         data = defaultdict(list)
         with open(log_file) as f:
@@ -54,10 +58,16 @@ def latency(log_files, save_or_show):
         for field, points in data.items():
             x = [point[0] for point in points]
             y = [point[1] for point in points]
-            plt.plot(x, y, label='%s %s' %
-                     (log_file.replace('.log', ''), field.strip('[]').lower()))
+            # plt.plot(x, y, label='%s %s' %
+                     # (log_file.replace('.log', ''), field.strip('[]').lower()))
+            hist_data.append(y)
             # plt.plot(x, y, label='%s' %
             #          ('TSX Accelerated' if 'new' in log_file else 'Stock LevelDB'))
+            labels.append('%s %s' %
+                          (log_file.replace('.log', ''), field.strip('[]').lower()))
+    P.figure()
+    n, bins, patches = P.hist([list(x) for x in zip(*hist_data)], 10, histtype='bar', label=labels)
+    import pdb; pdb.set_trace()
     plt.title('Latency')
     plt.xlabel('time (ms)')
     plt.ylabel('latency (us)')
@@ -65,13 +75,14 @@ def latency(log_files, save_or_show):
     for label in legend.get_texts():
         label.set_fontsize('small')
     if save_or_show == 'show':
-        plt.show()
+        # plt.show()
+        P.show()
     else:
         plt.savefig('latency.pdf', bbox_inches=0)
         print 'Latency graph saved to latency.pdf'
 
 
-def ops(log_files, save_or_show):
+def ops(log_files, save_or_show='show', hist=False):
     for log_file in log_files:
         data = []
         with open(log_file) as f:
