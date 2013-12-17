@@ -1,7 +1,5 @@
 import re
 import sys
-import math
-import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
@@ -22,7 +20,6 @@ def throughput(log_files, save_or_show='show', hist=False):
         y = [float(tp) for time, tp in data]
         plt.plot(x, y, label=log_file.replace('.log', ''),
                  marker='o', ls='', ms=5, mec='white')
-        # plt.plot(x, y, label=log_file.replace('.log', ''))
     plt.title('Throughput')
     plt.xlabel('time (s)')
     plt.ylabel('ops/sec')
@@ -132,6 +129,26 @@ def publish_ops():
     x = [float(time) for time, ops in data]
     y = [float(ops) / 10000000 for time, ops in data]
     plt.plot(x, y, label='Stock - 8 threads', color='blue')
+    data = []
+    with open('run_new_o.log') as f:
+        for line in f:
+            match = re.findall(
+                r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
+            if match:
+                data.append(match[0])
+    x = [float(time) for time, ops in data]
+    y = [float(ops) / 10000000 for time, ops in data]
+    plt.plot(x, y, label='TSX - 2 threads', color='green')
+    data = []
+    with open('run_stock_o.log') as f:
+        for line in f:
+            match = re.findall(
+                r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
+            if match:
+                data.append(match[0])
+    x = [float(time) for time, ops in data]
+    y = [float(ops) / 10000000 for time, ops in data]
+    plt.plot(x, y, label='Stock - 2 threads', color='orange')
     plt.xlabel('Time (ms)')
     plt.ylabel('Operations completed (%)')
     legend = plt.legend(loc='lower right')
@@ -160,9 +177,6 @@ def main():
             return
         elif option == 'latency' or option == 'l':
             latency(log_files, save_or_show)
-            return
-        elif option == 'clatency' or option == 'cl':
-            clatency(log_files, save_or_show)
             return
         elif option == 'ops' or option == 'o':
             ops(log_files, save_or_show)
