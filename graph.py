@@ -1,5 +1,7 @@
 import re
 import sys
+import scipy
+import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
@@ -7,7 +9,7 @@ FIELDS = ['[UPDATE]', '[INSERT]', '[READ]']
 plt.ioff()
 
 
-def throughput(log_files, save_or_show='show', hist=False):
+def throughput(log_files, save_or_show='show'):
     for log_file in log_files:
         data = []
         with open(log_file) as f:
@@ -67,7 +69,7 @@ def ops(log_files, save_or_show='show', hist=False):
         with open(log_file) as f:
             for line in f:
                 match = re.findall(
-                    r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
+                    r'(\d*) sec: (\d*) operations;', line)
                 if match:
                     data.append(match[0])
         x = [float(time) for time, ops in data]
@@ -84,6 +86,56 @@ def ops(log_files, save_or_show='show', hist=False):
     else:
         plt.savefig('cumulative_ops.pdf', bbox_inches=0)
         print 'Cumulative operations graph saved to cumulative_ops.pdf'
+
+
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in xrange(0, len(l), n):
+        yield l[i:i + n]
+
+
+def publish_throughput():
+    data = []
+    with open('run_new_l.log') as f:
+        for line in f:
+            match = re.findall(
+                r'(\d*) sec: (\d*) operations;', line)
+            if match:
+                data.append(match[0])
+    data2 = [(chunk[0][0], (float(chunk[-1][1]) - float(chunk[0][1])) / 60)
+             for chunk in chunks(data, 6)]
+    tps = np.array([y for x, y in data2])
+    mean = np.mean(tps)
+    std = np.std(tps)
+    data2 = [(time, tp) for time, tp in data2 if abs(tp - mean) < 2 * std]
+    times = [float(time) / 60 for time, ops in data2]
+    tps = [float(ops) for time, ops in data2]
+    plt.plot(times, tps, label='TSX - 4 threads', color='pink',
+             marker='D', linestyle='-', markevery=7, markersize=4)
+    data = []
+    with open('run_stock_l.log') as f:
+        for line in f:
+            match = re.findall(
+                r'(\d*) sec: (\d*) operations;', line)
+            if match:
+                data.append(match[0])
+    data2 = [(chunk[0][0], (float(chunk[-1][1]) - float(chunk[0][1])) / 60)
+             for chunk in chunks(data, 6)]
+    tps = np.array([y for x, y in data2])
+    mean = np.mean(tps)
+    std = np.std(tps)
+    data2 = [(time, tp) for time, tp in data2 if abs(tp - mean) < 2 * std]
+    times = [float(time) / 60 for time, ops in data2]
+    tps = [float(ops) for time, ops in data2]
+    plt.plot(times, tps, label='Stock - 4 threads', color='lightblue',
+             marker='D', linestyle='-', markevery=13, markersize=4)
+    plt.xlabel('Time (min)')
+    plt.ylabel('Throughput (ops/min)')
+    legend = plt.legend(loc='lower right')
+    for label in legend.get_texts():
+        label.set_fontsize('medium')
+    plt.show()
 
 
 def publish_ops():
@@ -149,7 +201,7 @@ def publish_ops():
     x = [float(time) for time, ops in data]
     y = [float(ops) / 10000000 for time, ops in data]
     plt.plot(x, y, label='Stock - 2 threads', color='orange')
-    plt.xlabel('Time (ms)')
+    plt.xlabel('Time (sec)')
     plt.ylabel('Operations completed (%)')
     legend = plt.legend(loc='lower right')
     for label in legend.get_texts():
@@ -157,11 +209,49 @@ def publish_ops():
     plt.show()
 
 
+def stats(log_files):
+    for log_file in log_files:
+        print log_file
+        f = open(log_file).read()
+        print 'OVERALL'
+        for field, num in re.findall(r'\[OVERALL\], ([a-zA-Z()/]*), (\d*)', f):
+            print '%s\t%s' % (field.rjust(20), num)
+        print 'READ'
+        for field, num in re.findall(r'\[READ\], ([a-zA-Z()/]*), (\d*)', f):
+            print '%s\t%s' % (field.rjust(20), num)
+        read_lat = [float(x)
+                    for x in re.findall(r'\[READ\], \d*, ([\d.]*)', f)]
+        c = scipy.percentile(read_lat, 25)
+        o = scipy.percentile(read_lat, 75)
+        h = scipy.percentile(read_lat, 99)
+        l = scipy.percentile(read_lat, 1)
+        print '%s\t%s' % ('open'.rjust(20), o)
+        print '%s\t%s' % ('high'.rjust(20), h)
+        print '%s\t%s' % ('low'.rjust(20), l)
+        print '%s\t%s' % ('close'.rjust(20), c)
+        print 'INSERT'
+        for field, num in re.findall(r'\[INSERT\], ([a-zA-Z()/]*), (\d*)', f):
+            print '%s\t%s' % (field.rjust(20), num)
+        insert_lat = [float(x)
+                      for x in re.findall(r'\[INSERT\], \d*, ([\d.]*)', f)]
+        c = scipy.percentile(insert_lat, 25)
+        o = scipy.percentile(insert_lat, 75)
+        h = scipy.percentile(insert_lat, 90)
+        l = scipy.percentile(insert_lat, 10)
+        print '%s\t%s' % ('open'.rjust(20), o)
+        print '%s\t%s' % ('high'.rjust(20), h)
+        print '%s\t%s' % ('low'.rjust(20), l)
+        print '%s\t%s' % ('close'.rjust(20), c)
+
+
 def main():
     if len(sys.argv) == 2:
         option = sys.argv[1]
         if option == 'publish_ops' or option == 'po':
             publish_ops()
+            return
+        if option == 'publish_throughput' or option == 'pt':
+            publish_throughput()
             return
     elif len(sys.argv) > 2:
         args = sys.argv
@@ -180,6 +270,9 @@ def main():
             return
         elif option == 'ops' or option == 'o':
             ops(log_files, save_or_show)
+            return
+        elif option == 'stats' or option == 's':
+            stats(log_files)
             return
     print 'Wrong number of arguments.'
     print 'Usage: python graph.py [throughput | latency | ops | clatency | publish_ops] [save | show(default)] [log files]'
