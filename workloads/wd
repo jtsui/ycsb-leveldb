@@ -39,4 +39,4 @@ insertproportion=0.05
 
 requestdistribution=latest
 
-threadcount=4
+threadcount=8

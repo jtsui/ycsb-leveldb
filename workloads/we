@@ -43,4 +43,4 @@ maxscanlength=100
 
 scanlengthdistribution=uniform
 
-threadcount=4
+threadcount=8

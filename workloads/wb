@@ -34,4 +34,4 @@ insertproportion=0
 
 requestdistribution=zipfian
 
-threadcount=4
+threadcount=8
