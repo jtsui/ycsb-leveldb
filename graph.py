@@ -1,6 +1,7 @@
 import re
 import sys
 import scipy
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -139,71 +140,122 @@ def publish_throughput():
 
 
 def publish_ops():
-    data = []
+    tsx_data = []
     with open('run_new_l.log') as f:
         for line in f:
             match = re.findall(
                 r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
             if match:
-                data.append(match[0])
-    x = [float(time) for time, ops in data]
-    y = [float(ops) / 10000000 for time, ops in data]
-    plt.plot(x, y, label='TSX - 4 threads', color='pink',
-             marker='D', linestyle='-', markevery=50, markersize=4)
-    data = []
+                tsx_data.append(match[0])
+    # tsx_times = [float(time) for time, ops in tsx_data]
+    # tsx_ops = [float(ops) for time, ops in tsx_data]
+    # plt.plot(tsx_times, tsx_ops, label='TSX - 4 threads', color='pink',
+    #          marker='D', linestyle='-', markevery=50, markersize=4)
+    stock_data = []
     with open('run_stock_l.log') as f:
         for line in f:
             match = re.findall(
                 r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
             if match:
-                data.append(match[0])
-    x = [float(time) for time, ops in data]
-    y = [float(ops) / 10000000 for time, ops in data]
-    plt.plot(x, y, label='Stock - 4 threads', color='lightblue',
-             marker='D', linestyle='-', markevery=30, markersize=4)
-    data = []
+                stock_data.append(match[0])
+    # stock_times = [float(time) for time, ops in stock_data]
+    # stock_ops = [float(ops) for time, ops in stock_data]
+    # plt.plot(
+    #     stock_times, stock_ops, label='Stock - 4 threads', color='lightblue',
+    #     marker='D', linestyle='-', markevery=30, markersize=4)
+    tsx_data = dict([(int(x) / 10 * 10, float(y))
+                    for x, y in tsx_data])
+    stock_data = [(int(x) / 10 * 10, float(y)) for x, y in stock_data]
+    delta = []
+    for time, ops in stock_data:
+        delta.append((time, tsx_data[time] - ops))
+    plt.plot([x for x, y in delta][0::10],
+             [y for x, y in delta][0::10], label='4 threads')
+
+    delta = delta[0::6]
+    delta = [((x - 10) / 60, y) for x, y in delta]
+    with open('4.csv', 'wb') as f:
+        wr = csv.writer(f, quoting=csv.QUOTE_ALL)
+        for d in delta:
+            wr.writerow(d)
+
+    tsx_data = []
     with open('run_new_g.log') as f:
         for line in f:
             match = re.findall(
                 r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
             if match:
-                data.append(match[0])
-    x = [float(time) for time, ops in data]
-    y = [float(ops) / 10000000 for time, ops in data]
-    plt.plot(x, y, label='TSX - 8 threads', color='red')
-    data = []
+                tsx_data.append(match[0])
+    # x = [float(time) for time, ops in tsx_data]
+    # y = [float(ops) / 10000000 for time, ops in tsx_data]
+    # plt.plot(x, y, label='TSX - 8 threads', color='red')
+    stock_data = []
     with open('run_stock_g.log') as f:
         for line in f:
             match = re.findall(
                 r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
             if match:
-                data.append(match[0])
-    x = [float(time) for time, ops in data]
-    y = [float(ops) / 10000000 for time, ops in data]
-    plt.plot(x, y, label='Stock - 8 threads', color='blue')
-    data = []
+                stock_data.append(match[0])
+    # x = [float(time) for time, ops in stock_data]
+    # y = [float(ops) / 10000000 for time, ops in stock_data]
+    # plt.plot(x, y, label='Stock - 8 threads', color='blue')
+    tsx_data = dict([(int(x) / 10 * 10, float(y))
+                    for x, y in tsx_data])
+    stock_data = [(int(x) / 10 * 10, float(y)) for x, y in stock_data]
+    delta = []
+    for time, ops in stock_data:
+        if time in tsx_data:
+            delta.append((time, tsx_data[time] - ops))
+    plt.plot([x for x, y in delta][0::10],
+             [y for x, y in delta][0::10], label='8 threads')
+
+    delta = delta[0::6]
+    delta = [((x - 10) / 60, y) for x, y in delta]
+    with open('8.csv', 'wb') as f:
+        wr = csv.writer(f, quoting=csv.QUOTE_ALL)
+        for d in delta:
+            wr.writerow(d)
+
+    tsx_data = []
     with open('run_new_o.log') as f:
         for line in f:
             match = re.findall(
                 r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
             if match:
-                data.append(match[0])
-    x = [float(time) for time, ops in data]
-    y = [float(ops) / 10000000 for time, ops in data]
-    plt.plot(x, y, label='TSX - 2 threads', color='green')
-    data = []
+                tsx_data.append(match[0])
+    # x = [float(time) for time, ops in tsx_data]
+    # y = [float(ops) / 10000000 for time, ops in tsx_data]
+    # plt.plot(x, y, label='TSX - 2 threads', color='green')
+    stock_data = []
     with open('run_stock_o.log') as f:
         for line in f:
             match = re.findall(
                 r'(\d*) sec: (\d*) operations; \d*.?\d* current ops/sec', line)
             if match:
-                data.append(match[0])
-    x = [float(time) for time, ops in data]
-    y = [float(ops) / 10000000 for time, ops in data]
-    plt.plot(x, y, label='Stock - 2 threads', color='orange')
+                stock_data.append(match[0])
+    # x = [float(time) for time, ops in stock_data]
+    # y = [float(ops) / 10000000 for time, ops in stock_data]
+    # plt.plot(x, y, label='Stock - 2 threads', color='orange')
+    tsx_data = dict([(int(x) / 10 * 10, float(y))
+                    for x, y in tsx_data])
+    stock_data = [(int(x) / 10 * 10, float(y)) for x, y in stock_data]
+    delta = []
+    for time, ops in stock_data:
+        if time in tsx_data:
+            delta.append((time, tsx_data[time] - ops))
+    plt.plot([x for x, y in delta][0::10],
+             [y for x, y in delta][0::10], label='2 threads')
+
+    delta = delta[0::6]
+    delta = [((x - 10) / 60, y) for x, y in delta]
+    with open('2.csv', 'wb') as f:
+        wr = csv.writer(f, quoting=csv.QUOTE_ALL)
+        for d in delta:
+            wr.writerow(d)
+
     plt.xlabel('Time (sec)')
-    plt.ylabel('Operations completed (%)')
-    legend = plt.legend(loc='lower right')
+    plt.ylabel('Delta operations completed (TSX ops - Stock ops)')
+    legend = plt.legend(loc='upper left')
     for label in legend.get_texts():
         label.set_fontsize('medium')
     plt.show()
